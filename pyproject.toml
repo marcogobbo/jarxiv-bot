@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "jarxiv"
-version = "0.1.0"
+version = "0.0.1"
 description = "JarXiv (Jarvis - ArXiv) is a Telegram bot designed to fetch and deliver the latest research papers from arXiv directly to users. JarXiv simplifies staying update with paprs offering daily notifications."
-authors = ["Marco Gobbo <gobbo.marco98@gmail.com>"]
+authors = ["Marco Gobbo <marco.gobbo@mib.infn.it>"]
 license = "Apache License 2.0"
 readme = "README.md"
 
@@ -16,3 +16,16 @@ pre-commit = "^4.0.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.tests]
+optional = true
+
+[tool.poetry.group.tests.dependencies]
+pytest = "^8.1.1"
+
+[tool.poetry.group.analysis]
+optional = true
+
+[tool.poetry.group.analysis.dependencies]
+pylint = "^3.1.0"
+pylint-exit = "^1.2.0"

@@ -48,7 +48,7 @@ async def manage_item(
     config_file = Path(f"{CONFIG_FOLDER}/{chat['type']}/{chat['id']}_config.json")
 
     try:
-        with open(config_file, "r", encoding="UTF-8") as file:
+        with open(config_file, encoding="UTF-8") as file:
             config = json.load(file)
 
     except FileNotFoundError:
@@ -72,7 +72,6 @@ async def manage_item(
 
     if item in config[keys]:
         if action == "remove":
-
             getattr(config[keys], action)(item)
 
             with open(config_file, "w", encoding="UTF-8") as file:
@@ -134,7 +133,7 @@ async def list_items(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     config_file = Path(f"{CONFIG_FOLDER}/{chat['type']}/{chat['id']}_config.json")
 
     try:
-        with open(config_file, "r", encoding="UTF-8") as file:
+        with open(config_file, encoding="UTF-8") as file:
             config = json.load(file)
 
         message = []
