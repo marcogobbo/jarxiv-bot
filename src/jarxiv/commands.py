@@ -6,26 +6,20 @@ from typing import Final
 
 from telegram import Update
 from telegram.ext import ContextTypes
-from utils import (
-    add_item_message,
-    del_item_message,
-    double_item_message,
-    message,
-    missing_item_message,
-    no_config_message,
-    no_item_message,
-)
+from utils import config_file_status, item_message, send_message
 
 CONFIG_FOLDER: Final = "../../config/"
 
 
-async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     data = update.message.chat
     chat = {"id": data.id, "type": data.type, "name": data.title or data.username}
 
     config_file = Path(f"{CONFIG_FOLDER}/{chat['type']}/{chat['id']}_config.json")
 
-    if not config_file.exists():
+    if config_file.exists():
+        await config_file_status(chat, context, "exists")
+    else:
         default_config = {
             "chat": {
                 "id": chat["id"],
@@ -38,24 +32,14 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         with open(config_file, "w", encoding="UTF-8") as file:
             json.dump(default_config, file, indent=4)
 
-        await message(
-            chat["id"],
-            context,
-            f"Configuration file created for the {chat['type']} chat <b>{chat['name']}</b> with ID <b>{chat['id']}</b>.",
-        )
-    else:
-        await message(
-            chat["id"],
-            context,
-            f"Configuration file for the {chat['type']} chat <b>{chat['name']}</b> with ID <b>{chat['id']}</b> already exists.",
-        )
+        await config_file_status(chat, context, "created")
 
 
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def support(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     pass
 
 
-async def action_item_command(
+async def manage_item(
     update: Update, context: ContextTypes.DEFAULT_TYPE, action: str, new_item: dict
 ) -> None:
     data = update.message.chat
@@ -68,14 +52,18 @@ async def action_item_command(
             config = json.load(file)
 
     except FileNotFoundError:
-        await no_config_message(chat, context)
+        await config_file_status(chat, context, "missing")
 
         return
 
     key = next(iter(new_item))
 
     if not new_item[key]:
-        await no_item_message(chat["id"], context, new_item)
+        await send_message(
+            chat["id"],
+            context,
+            f"Please specify the name of the {key}!",
+        )
 
         return
 
@@ -90,9 +78,10 @@ async def action_item_command(
             with open(config_file, "w", encoding="UTF-8") as file:
                 json.dump(config, file, indent=4)
 
-            await del_item_message(chat["id"], context, item, keys)
+            await item_message(chat["id"], context, item, keys, action)
         else:
-            await double_item_message(chat["id"], context, item, keys)
+            action = "duplicate"
+            await item_message(chat["id"], context, item, keys, action)
     else:
         if action == "append":
             getattr(config[keys], action)(item)
@@ -100,50 +89,47 @@ async def action_item_command(
             with open(config_file, "w", encoding="UTF-8") as file:
                 json.dump(config, file, indent=4)
 
-            await add_item_message(chat["id"], context, item, keys)
+            await item_message(chat["id"], context, item, keys, action)
         else:
-            await missing_item_message(chat["id"], context, item, keys)
+            action = "missing"
+            await item_message(chat["id"], context, item, keys, action)
 
 
-async def add_author_command(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> None:
+async def add_author(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     action = "append"
     new_item = {"author": context.args}
 
-    await action_item_command(update, context, action, new_item)
+    await manage_item(update, context, action, new_item)
 
 
-async def add_keyword_command(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> None:
+async def add_keyword(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     action = "append"
     new_item = {"keyword": context.args}
 
-    await action_item_command(update, context, action, new_item)
+    await manage_item(update, context, action, new_item)
 
 
-async def del_author_command(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> None:
+async def del_author(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     action = "remove"
     new_item = {"author": context.args}
 
-    await action_item_command(update, context, action, new_item)
+    await manage_item(update, context, action, new_item)
 
 
-async def del_keyword_command(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> None:
+async def del_keyword(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     action = "remove"
     new_item = {"keyword": context.args}
 
-    await action_item_command(update, context, action, new_item)
+    await manage_item(update, context, action, new_item)
 
 
-async def list_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    data = update.message.chat
-    chat = {"id": data.id, "type": data.type, "name": data.title or data.username}
+async def list_items(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    chat_data = update.message.chat
+    chat = {
+        "id": chat_data.id,
+        "type": chat_data.type,
+        "name": chat_data.title or chat_data.username,
+    }
 
     config_file = Path(f"{CONFIG_FOLDER}/{chat['type']}/{chat['id']}_config.json")
 
@@ -151,33 +137,28 @@ async def list_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         with open(config_file, "r", encoding="UTF-8") as file:
             config = json.load(file)
 
-            if not config["authors"] and not config["keywords"]:
-                await message(
-                    chat["id"],
-                    context,
-                    "There are no authors and keywords in both lists!",
-                )
-                return
+        message = []
+        items = {
+            "authors": config.get("authors", []),
+            "keywords": config.get("keywords", []),
+        }
 
-            response_text = ""
-
-            if config["authors"]:
-                authors = ", ".join(map(str, config["authors"]))
-                response_text += f"<b>List of authors</b>: {authors}."
-            else:
-                response_text += "There are no authors in the authors list!"
-
-            if config["keywords"]:
-                keywords = ", ".join(map(str, config["keywords"]))
-                response_text += f"\n<b>List of keywords</b>: {keywords}."
-            else:
-                response_text += "\nThere are no keywords in the keywords list!"
-
-            await message(
+        if not items["authors"] and not items["keywords"]:
+            await send_message(
                 chat["id"],
                 context,
-                response_text,
+                "There are no authors and keywords in both lists!",
             )
+            return
+
+        for item_name, item_list in items.items():
+            if item_list:
+                item_list_str = ", ".join(map(str, item_list))
+                message.append(f"<b>List of {item_name}</b>: {item_list_str}.")
+            else:
+                message.append(f"There are no {item_name} in the {item_name} list!")
+
+        await send_message(chat["id"], context, "\n".join(message))
 
     except FileNotFoundError:
-        await no_config_message(chat, context)
+        await config_file_status(chat, context, "missing")
