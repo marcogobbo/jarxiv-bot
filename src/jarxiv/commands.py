@@ -1,9 +1,11 @@
 # pylint: disable=C0116,C0114
 
 import json
+from datetime import time
 from pathlib import Path
 from typing import Final
 
+from papers import send_papers
 from telegram import Update
 from telegram.ext import ContextTypes
 from utils import config_file_status, item_message, send_message
@@ -19,6 +21,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     if config_file.exists():
         await config_file_status(chat, context, "exists")
+
     else:
         default_config = {
             "chat": {
@@ -33,6 +36,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             json.dump(default_config, file, indent=4)
 
         await config_file_status(chat, context, "created")
+
+    current_jobs = context.job_queue.get_jobs_by_name(str(data.id))
+
+    if not current_jobs:
+        await init(data, context)
+
+
+async def init(data, context: ContextTypes.DEFAULT_TYPE) -> None:
+    context.job_queue.run_daily(
+        send_papers,
+        time(hour=16, minute=15),
+        chat_id=data.id,
+        name=str(data.id),
+        data=data,
+    )
 
 
 async def support(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -67,7 +85,7 @@ async def manage_item(
 
         return
 
-    item = new_item[key][0]
+    item = " ".join(new_item[key])
     keys = key + "s"
 
     if item in config[keys]:
@@ -104,7 +122,6 @@ async def add_author(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 async def add_keyword(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     action = "append"
     new_item = {"keyword": context.args}
-
     await manage_item(update, context, action, new_item)
 
 
