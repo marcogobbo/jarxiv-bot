@@ -32,7 +32,7 @@ async def config_file_status(chat, context, status):
     elif status == "exists":
         message = f"Configuration file for the {chat['type']} chat <b>{chat['name']}</b> with ID <b>{chat['id']}</b> already exists."
     elif status == "missing":
-        message = f"Configuration file not found for the {chat['type']} chat <b>{chat['name']}</b> with ID <b>{chat['id']}</b>.\nPlease initialize the configuration with <b>/start</b."
+        message = f"Configuration file not found for the {chat['type']} chat <b>{chat['name']}</b> with ID <b>{chat['id']}</b>.\nPlease initialize the configuration with <b>/start</b>."
     else:
         message = f"There is an issue with the configuration for the {chat['type']} chat <b>{chat['name']}</b> with ID <b>{chat['id']}</b>."
     await send_message(chat["id"], context, message)

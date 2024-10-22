@@ -46,7 +46,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def init(data, context: ContextTypes.DEFAULT_TYPE) -> None:
     context.job_queue.run_daily(
         send_papers,
-        time(hour=16, minute=15),
+        time(hour=16, minute=00),
         chat_id=data.id,
         name=str(data.id),
         data=data,
@@ -65,11 +65,11 @@ async def manage_item(
 
     config_file = Path(f"{CONFIG_FOLDER}/{chat['type']}/{chat['id']}_config.json")
 
-    try:
+    if config_file.exists():
         with open(config_file, encoding="UTF-8") as file:
             config = json.load(file)
 
-    except FileNotFoundError:
+    else:
         await config_file_status(chat, context, "missing")
 
         return
@@ -149,7 +149,7 @@ async def list_items(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
     config_file = Path(f"{CONFIG_FOLDER}/{chat['type']}/{chat['id']}_config.json")
 
-    try:
+    if config_file.exists():
         with open(config_file, encoding="UTF-8") as file:
             config = json.load(file)
 
@@ -176,5 +176,5 @@ async def list_items(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
         await send_message(chat["id"], context, "\n".join(message))
 
-    except FileNotFoundError:
+    else:
         await config_file_status(chat, context, "missing")
