@@ -23,7 +23,7 @@ if __name__ == "__main__":
     app = Application.builder().token(TOKEN).defaults(defaults).build()
 
     # Commands
-    app.add_handler(CommandHandler(("start", "s"), start))
+    app.add_handler(CommandHandler(("start"), start))
     app.add_handler(CommandHandler(("add_author", "aa"), add_author))
     app.add_handler(CommandHandler(("add_keyword", "ak"), add_keyword))
     app.add_handler(CommandHandler(("del_author", "da"), del_author))

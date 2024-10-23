@@ -53,10 +53,6 @@ async def init(data, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
 
 
-async def support(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    pass
-
-
 async def manage_item(
     update: Update, context: ContextTypes.DEFAULT_TYPE, action: str, new_item: dict
 ) -> None:

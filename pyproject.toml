@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "jarxiv"
 version = "0.0.1"
-description = "JarXiv (Jarvis - ArXiv) is a Telegram bot designed to fetch and deliver the latest research papers from arXiv directly to users. JarXiv simplifies staying update with paprs offering daily notifications."
+description = "Jar(vis)(ar)Xiv Bot is a Telegram bot that allows users to easily retrieve the latest academic papers from the arXiv repository by querying the arXiv API using arxiv.py. Users can filter papers by specific authors or keywords found in titles and abstracts, making it an efficient tool for researchers to stay updated on relevant publications."
 authors = ["Marco Gobbo <marco.gobbo@mib.infn.it>"]
 license = "Apache License 2.0"
 readme = "README.md"
