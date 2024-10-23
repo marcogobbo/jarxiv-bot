@@ -1,2 +1,6 @@
+"""Dummy test."""
+
+
 def test_dummy():
-    pass
+    """Dummy test."""
+    return
