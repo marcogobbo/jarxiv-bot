@@ -1,7 +1,6 @@
 # JarXiv Bot - A Telegram Bot for arXiv papers
 ![Python Version](https://img.shields.io/badge/python-3.11+-blue)
 ![GitHub Release](https://img.shields.io/github/v/release/marcogobbo/jarxiv-bot)
-![GitHub License](https://img.shields.io/github/license/marcogobbo/jarxiv-bot)
 
 🤖 **Jar**(vis)(ar)**Xiv Bot** is a Telegram bot that allows users to easily retrieve the latest academic papers from the [arXiv](https://arxiv.org/) repository by querying the arXiv API using [arxiv.py](https://github.com/lukasschwab/arxiv.py). Users can filter papers by specific authors or keywords found in titles and abstracts, making it an efficient tool for researchers to stay updated on relevant publications.
 
