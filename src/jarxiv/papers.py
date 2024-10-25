@@ -44,12 +44,14 @@ async def send_papers(context: ContextTypes) -> None:
 
     # Construct the search query for authors and keywords.
     authors_query = (
-        " OR ".join(f"au:{author}" for author in config["authors"])
+        " OR ".join(f'au:"{author}"' for author in config["authors"])
         if config["authors"]
         else ""
     )
     keywords_query = (
-        " OR ".join(f"ti:{keyword} OR abs:{keyword}" for keyword in config["keywords"])
+        " OR ".join(
+            f'ti:"{keyword}" OR abs:"{keyword}"' for keyword in config["keywords"]
+        )
         if config["keywords"]
         else ""
     )

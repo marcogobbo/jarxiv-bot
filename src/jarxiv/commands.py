@@ -76,7 +76,7 @@ async def init(data, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Schedule a daily job to send papers to the chat.
     context.job_queue.run_daily(
         send_papers,
-        time(hour=9, minute=00),
+        time(hour=9, minute=42),
         chat_id=data.id,
         name=str(data.id),
         data=data,
@@ -126,7 +126,7 @@ async def manage_item(
         )
         return
 
-    item = " ".join(new_item[key])
+    item = " ".join([str(x).lower() for x in new_item[key]])
     keys = key + "s"
 
     if item in config[keys]:

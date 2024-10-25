@@ -42,10 +42,10 @@ async def item_message(
     """
     # Define the message templates for different actions (add, remove, etc.).
     messages = {
-        "append": (f"<b>{item}</b> has been added to the {keys} list!"),
-        "remove": (f"<b>{item}</b> has been removed from the {keys} list!"),
-        "duplicate": (f"<b>{item}</b> is already in the {keys} list!"),
-        "missing": (f"<b>{item}</b> is not in the {keys} list!"),
+        "append": (f"<b>{item.title()}</b> has been added to the {keys} list!"),
+        "remove": (f"<b>{item.title()}</b> has been removed from the {keys} list!"),
+        "duplicate": (f"<b>{item.title()}</b> is already in the {keys} list!"),
+        "missing": (f"<b>{item.title()}</b> is not in the {keys} list!"),
     }
 
     # Send the appropriate message based on the action.
