@@ -8,7 +8,15 @@ import os
 from typing import Final
 
 import pytz
-from commands import add_author, add_keyword, del_author, del_keyword, list_items, start
+from commands import (
+    add_author,
+    add_keyword,
+    del_author,
+    del_keyword,
+    get_latest,
+    list_items,
+    start,
+)
 from telegram import LinkPreviewOptions
 from telegram.constants import ParseMode
 from telegram.ext import Application, CommandHandler, Defaults
@@ -41,6 +49,7 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler(("del_author", "da"), del_author))
     app.add_handler(CommandHandler(("del_keyword", "dk"), del_keyword))
     app.add_handler(CommandHandler(("list", "ls"), list_items))
+    app.add_handler(CommandHandler(("latest", "lt"), get_latest))
 
     # Start polling for new updates with a poll interval of 3 seconds.
     print("Polling...")

@@ -11,13 +11,14 @@ from pathlib import Path
 from typing import Final
 
 import arxiv
+from telegram import Chat
 from telegram.ext import ContextTypes
 
 # Path to the folder containing the configuration files for the bot.
 CONFIG_FOLDER: Final = "../../config/"
 
 
-async def send_papers(context: ContextTypes) -> None:
+async def send_papers(context: ContextTypes, data: Chat = None) -> None:
     """
     Fetches and sends the latest submitted arXiv papers to a Telegram chat based on
     configured authors and keywords stored in a JSON file. If no new papers match the
@@ -28,7 +29,7 @@ async def send_papers(context: ContextTypes) -> None:
                                              job data and bot interaction details.
     """
     # Retrieve job-specific data, including the chat ID and type.
-    data = context.job.data
+    data = data or context.job.data
     chat = {"id": data.id, "type": data.type, "name": data.title or data.username}
 
     # Construct the path to the chat-specific configuration file.

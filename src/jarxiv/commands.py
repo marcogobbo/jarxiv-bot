@@ -270,3 +270,27 @@ async def list_items(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     else:
         # Notify that the configuration file is missing.
         await config_file_status(chat, context, "missing")
+
+
+async def get_latest(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Retrieves and sends the latest papers to the chat.
+
+    Args:
+        update (Update): The update containing the chat information.
+        context (ContextTypes.DEFAULT_TYPE): Contextual information for the bot's handler.
+
+    Returns:
+        None
+    """
+    data = update.message.chat
+    chat = {"id": data.id, "type": data.type, "name": data.title or data.username}
+
+    config_file = Path(f"{CONFIG_FOLDER}/{chat['type']}/{chat['id']}_config.json")
+
+    if config_file.exists():
+        # Retrieves and send the latest papers.
+        await send_papers(context, data)
+    else:
+        # Notify that the configuration file is missing.
+        await config_file_status(chat, context, "missing")
+        return
